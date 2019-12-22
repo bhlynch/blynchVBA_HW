@@ -1,0 +1,88 @@
+Sub VBA_HW()
+
+'Establish variables
+Dim ticker As String
+Dim change_price As Double
+Dim change_percent As Double
+Dim volume As Double
+Dim annual_open As Double
+Dim annual_close As Double
+Dim LastRow As Long
+
+
+'Create a last row variable for the loop
+LastRow = Range("A" & Rows.Count).End(xlUp).Row
+
+
+' Keep track of the location for each credit card brand in the summary table
+  Dim Summary_Table_Row As Integer
+  Summary_Table_Row = 2
+ 
+
+'start conditional loop based on ticker
+For i = 3 To LastRow
+    If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+        'create a list of stocks
+        ticker = ticker + Cells(i, 1).Value
+        'total volume for each stock
+        volume = volume + Cells(i, 7).Value
+        'find the annual closing value for each stock
+        annual_close = Cells(i, 6).Value
+        'find the annual opening value for each stock
+        annual_open = Cells(i - 260, 3)
+        
+         ' Print the stock in the Summary Table
+        Range("I" & Summary_Table_Row).Value = ticker
+
+        ' Print the stock volume to the Summary Table
+        Range("L" & Summary_Table_Row).Value = volume
+        
+        'establish price change
+        change_price = annual_close - annual_open
+     
+        'print price change and percent change
+        Range("J" & Summary_Table_Row).Value = change_price
+        Range("K" & Summary_Table_Row).Value = change_price / annual_open
+     
+        ' Add one to the summary table row
+        Summary_Table_Row = Summary_Table_Row + 1
+    
+        'reset the stock name
+        ticker = ""
+      
+        ' Reset the Brand Total
+        volume = 0
+        
+      
+    ' If the cell immediately following a row is the same stock...
+    Else
+        'Find the annual open to the stock
+        annual_open = Cells(i, 3).Value
+
+        ' Add to the stock total
+        volume = volume + Cells(i, 7).Value
+
+        
+    End If
+Next i
+
+'conditional formatting for proffiting stocks
+For x = 2 To 100000
+    If Cells(x, 10) >= 0 Then
+        Cells(x, 10).Interior.ColorIndex = 4
+    Else
+        Cells(x, 10).Interior.ColorIndex = 3
+    End If
+Next x
+
+'other formatting
+Columns("K:K").Select
+    Selection.Style = "Percent"
+    Selection.NumberFormat = "0.0%"
+Range("I1") = "Ticker"
+Range("J1") = "Yearly Change"
+Range("K1") = "Percent Change"
+Range("L1") = "Total Valume"
+
+End Sub
+
